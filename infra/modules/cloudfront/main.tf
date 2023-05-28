@@ -2,7 +2,7 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for Next.js app"
 }
 
-resource "aws_cloudfront_distribution" "s3_distribution" {
+resource "aws_cloudfront_distribution" "main" {
   origin {
     domain_name = aws_s3_bucket.bucket.bucket_regional_domain_name
     origin_id   = aws_s3_bucket.bucket.id
