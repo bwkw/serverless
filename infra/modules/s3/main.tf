@@ -1,8 +1,8 @@
 resource "aws_s3_bucket" "main" {
-  bucket = "serverless"
-  acl    = "private"
+  bucket = var.bucket_name
+}
 
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_acl" "main" {
+  bucket = aws_s3_bucket.main.id
+  acl    = "private"
 }
