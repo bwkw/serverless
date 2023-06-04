@@ -1,28 +1,55 @@
-resource "aws_lambda_function" "main" {
-  function_name    = "lambda_at_edge"
-  s3_bucket        = "serverless"
-  s3_key           = "your-lambda-code-key"
-  handler          = "index.handler"
+data "archive_file" "lambda" {
+  type        = "zip"
+  source_file = var.zip_path
+  output_path = "lambda_function_payload.zip"
+}
+
+resource "aws_lambda_function" "lambda_at_edge" {
+  function_name    = var.function_name
+  handler          = var.handler
   role             = aws_iam_role.iam_for_lambda.arn
-  runtime          = "nodejs18.x"
-
-  publish = true
+  runtime          = var.runtime
+  filename         = data.archive_file.lambda.output_path
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  publish          = true
 }
 
-resource "aws_lambda_permission" "main" {
-  statement_id  = "AllowExecutionFromCloudFront"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.main.arn
-  principal     = "edgelambda.amazonaws.com"
+resource "aws_iam_role" "iam_for_lambda" {
+  name = var.iam_role_name
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action    = "sts:AssumeRole",
+        Principal = {
+          Service = [
+            "lambda.amazonaws.com",
+            "edgelambda.amazonaws.com",
+          ]
+        },
+        Effect = "Allow",
+      },
+    ],
+  })
 }
 
-resource "aws_cloudfront_distribution" "main" {
-  default_cache_behavior {
-    lambda_function_association {
-      event_type   = "origin-request"
-      lambda_arn   = aws_lambda_function.main.qualified_arn
-    }
-  }
+resource "aws_iam_role_policy" "iam_for_lambda" {
+  name = var.iam_role_policy_name
+  role = aws_iam_role.iam_for_lambda.id
 
-  depends_on = [aws_lambda_function.main, aws_lambda_permission.main]
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+        ],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*",
+      },
+    ],
+  })
 }
