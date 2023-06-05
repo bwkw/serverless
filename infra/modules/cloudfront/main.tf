@@ -1,7 +1,7 @@
 resource "aws_cloudfront_distribution" "main" {
   origin {
-    domain_name = var.origin_s3_bucket
-    origin_id   = var.origin_s3_bucket
+    domain_name = var.bucket_domain_name
+    origin_id   = var.bucket_id
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
@@ -52,4 +52,24 @@ resource "aws_cloudfront_distribution" "main" {
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
   comment = "origin access identity for ${var.origin_s3_bucket}"
+}
+
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  bucket = var.bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "PolicyForCloudFrontPrivateContent"
+    Statement = [
+      {
+        Sid       = "1"
+        Effect    = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.origin_access_identity.id}"
+        }
+        Action   = "s3:GetObject"
+        Resource = "arn:aws:s3:::${var.bucket_id}/*"
+      },
+    ]
+  })
 }

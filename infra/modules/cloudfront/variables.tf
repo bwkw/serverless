@@ -13,3 +13,13 @@ variable "lambda_at_edge_qualified_arn" {
   description = "The ARN of the Lambda@Edge function with version"
   type        = string
 }
+
+variable "bucket_id" {
+  description = "The ID of the S3 bucket"
+  type        = string
+}
+
+variable "bucket_domain_name" {
+  description = "The domain name of the S3 bucket"
+  type        = string
+}
