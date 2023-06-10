@@ -1,4 +1,6 @@
-import { FC } from 'react'
+import type { FC } from 'react'
+
+import Image from 'next/image'
 import useSWR from 'swr'
 
 const Csr: FC = () => {
@@ -10,17 +12,26 @@ const Csr: FC = () => {
 }
 
 const DogImage: FC = () => {
-  const { data, error } = useSWR('https://dog.ceo/api/breeds/image/random', (url: string) =>
-    fetch(url).then(res => res.json())
-  )
+  const { data, error } = useSWR('https://dog.ceo/api/breeds/image/random', async (url: string) => {
+    const res = await fetch(url)
+    return await res.json()
+  })
 
-  if (error) {
+  if (error !== undefined) {
     return <div>fetch error</div>
   }
-  if (!data) {
+  if (data === undefined) {
     return <div>loading...</div>
   }
-  return <img src={data.message} alt={data.message} />
+
+  return (
+    <Image
+      src={data.message}
+      alt={data.message}
+      width={500}
+      height={300}
+    />
+  )
 }
 
 export default Csr
