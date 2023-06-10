@@ -1,5 +1,6 @@
 locals {
-  bucket_name         = "stg-serverless-sample"
+  environment         = "staging"
+  bucket_name         = "${local.environment}-serverless-sample"
   default_root_object = "index.html"
 
   lambda_function_name = "lambda_at_edge"
@@ -17,7 +18,6 @@ module "s3" {
 
 module "lambda" {
   providers = {
-    aws        = aws
     aws.useast = aws.useast
   }
   source               = "../../modules/lambda_at_edge"
