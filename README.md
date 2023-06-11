@@ -10,65 +10,98 @@ CloudFront × S3 × API Gateway × Lambda × Dynamo DB
 yarn
 ```
 
-2. Check if eslint settings work
+2. Check if server run
 
 ```
-yarn run lint-fix
+yarn dev
 ```
 
-3. Check if prettier settings work
+### client-infra
+1. Create symbolic link
 
 ```
-yarn run format
+ln -s provider.tf envrionment/staging/provider.tf
 ```
 
-4. Check if server run
+## Deploy
+1. Deploy client infra
 
 ```
-yarn run dev
+(~/client-infra) AWS_PROFILE=serverless terraform apply
 ```
 
-### infra
-1. create symbolic link
+2. Build and export Next.js
 
 ```
-ln -s ../../provider.tf provider.tf
+(~/client) yarn build && yarn export
 ```
 
-2. upload Next.js to s3
+3. Upload Next.js to s3
 
 ```
-npm run build && npm run export
-AWS_PROFILE=serverless aws s3 sync client/out s3://staging-serverless-sample
+(~/serverless) AWS_PROFILE=serverless aws s3 sync client/out s3://staging-serverless-sample
+```
+
+4. Build Go 
+
+```
+(~/serverless) GOOS=linux GOARCH=amd64 go build -o server-infra/bin/hello server/hello/main.go
+```
+
+5. Deploy server infra
+
+```
+(~/server-infra) sls deploy --stage prod
 ```
 
 ## Command
-- format tf file
+### client
+- Check if eslint settings work
+
+```
+yarn lint-fix
+```
+
+- Check if prettier settings work
+
+```
+yarn format
+```
+
+### client-infra
+- Format tf file
 
 ```
 terraform fmt
 ```
 
-- validate tf file
+- Validate tf file
 
 ```
 terraform validate
 ```
 
-- check what will be created
+- Check what will be created
 
 ```
 AWS_PROFILE=serverless terraform plan
 ```
 
-- create resource
+- Create resource
 
 ```
 AWS_PROFILE=serverless terraform apply
 ```
 
-- delete resource
+- Delete resource
 
 ```
 AWS_PROFILE=serverless terraform destroy
+```
+
+### server-infra
+- Create aws-go project by serverless framework
+
+```
+serverless create --template aws-go-dep --path server-infra
 ```
