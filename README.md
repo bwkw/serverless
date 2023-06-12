@@ -1,6 +1,9 @@
 ## OverView
+### client
+Developed with Next.js 13.3.1 and deployed on AWS CloudFront and S3. (by Terraform)
 
-CloudFront × S3 × API Gateway × Lambda × Dynamo DB
+### server
+Developed with go 1.20 and deployed using AWS API Gateway, Lambda, and DynamoDB. (by Serverless Framework)
 
 ## How to set up
 ### client
