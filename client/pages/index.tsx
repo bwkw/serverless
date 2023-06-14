@@ -7,9 +7,6 @@ const Home = (): JSX.Element => {
         <Link href="/ssg" passHref>
           <div>SSG Page</div>
         </Link>
-        <Link href="/ssr" passHref>
-          <div>SSR Page</div>
-        </Link>
         <Link href="/csr" passHref>
           <div>CSR Page</div>
         </Link>

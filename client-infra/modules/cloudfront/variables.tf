@@ -18,8 +18,3 @@ variable "default_root_object" {
   type        = string
   default     = "index.html"
 }
-
-variable "lambda_at_edge_qualified_arn" {
-  description = "The ARN of the Lambda@Edge function with version"
-  type        = string
-}
