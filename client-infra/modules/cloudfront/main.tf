@@ -25,12 +25,6 @@ resource "aws_cloudfront_distribution" "main" {
       }
     }
 
-    lambda_function_association {
-      event_type   = "origin-request"
-      lambda_arn   = "${var.lambda_at_edge_qualified_arn}"
-      include_body = false
-    }
-
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
