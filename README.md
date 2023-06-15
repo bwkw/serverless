@@ -57,6 +57,25 @@ ln -s provider.tf envrionment/staging/provider.tf
 (~/server-infra) sls deploy --stage prod
 ```
 
+## Destroy
+1. Delete object in s3 bucket
+
+```
+(~/serverless) AWS_PROFILE=serverless aws s3 rm s3://staging-serverless-sample --recursive
+```
+
+2. Destroy client infra
+
+```
+(~/client-infra) AWS_PROFILE=serverless terraform apply
+```
+
+3. Destroy server infra
+
+```
+(~/server-infra) sls remove --stage prod
+```
+
 ## Command
 ### client
 - Check if eslint settings work
