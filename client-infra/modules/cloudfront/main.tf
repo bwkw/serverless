@@ -2,10 +2,7 @@ resource "aws_cloudfront_distribution" "main" {
   origin {
     domain_name = var.bucket_domain_name
     origin_id   = var.bucket_id
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
-    }
+    origin_access_control_id = aws_cloudfront_origin_access_control.main.id
   }
   
   enabled             = true
@@ -48,6 +45,13 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
   comment = "origin access identity for ${var.origin_s3_bucket}"
 }
 
+resource "aws_cloudfront_origin_access_control" "main" {
+  name                              = "cf-oac-with-tf-example"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = var.bucket_id
 
@@ -56,13 +60,18 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
     Id      = "PolicyForCloudFrontPrivateContent"
     Statement = [
       {
-        Sid       = "1"
+        Sid       = "AllowCloudFrontServicePrincipalReadOnly"
         Effect    = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.origin_access_identity.id}"
+          Service = "cloudfront.amazonaws.com"
         }
         Action   = "s3:GetObject"
         Resource = "arn:aws:s3:::${var.bucket_id}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn": "arn:aws:cloudfront::${var.aws_account_id}:distribution/${aws_cloudfront_distribution.main.id}"
+          }
+        }
       },
     ]
   })
