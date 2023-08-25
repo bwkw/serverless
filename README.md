@@ -23,7 +23,7 @@ yarn dev
 1. Create symbolic link
 
 ```
-ln -s provider.tf envrionment/staging/provider.tf
+(~/client-infra/environment/staging) ln -s provider.tf ../../provider.tf
 ```
 
 ## Deploy
